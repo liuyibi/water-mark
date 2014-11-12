@@ -44,7 +44,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 Load://载入一幅图片
 
 	string filename = " ";
-	char*   filename2;
+	char*   filename2 = NULL;
 	//filename = "..\\..\\image\\food.bmp";//这种转义双斜杠输出到DOS终端会变成单斜杠
 
 	int nRetCode = 0;
