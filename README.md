@@ -1,5 +1,11 @@
 ##数字水印检测##
 
+2014-11-13
+1.显示窗口可以自动调节大小；
+2.应用采样方法加水印（选择在RGB的一个颜色通道上加，如中间通道；隔行或者隔列）加水印；
+3.现在的程序版本不仅在选择中间通道，并且隔行隔列采样，一幅200万像素图像上时间约0.13秒；
+
+
 vs2012上配置
 
 配置OpenCV，可以参照这两个博文配置：[Opencv 完美配置攻略 2014 (Win8.1 + Opencv 2.4.8 + VS 2013)](http://my.phirobot.com/blog/2014-02-opencv_configuration_in_vs.html), [实用图像处理入门 - 1 - opencv VS2012 环境搭建](http://www.cnblogs.com/jhzhu/p/3175832.html).

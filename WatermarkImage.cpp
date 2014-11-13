@@ -27,12 +27,13 @@ void help()
 {
 	cout << "该程序用于给图像加水印并检测图像内容是否被篡改 \n"
 		" \n 请按照下面的菜单进行操作：\n"<<
-		"\n 操作快捷键: \n"
-		"\t ESC - 结束 \n"
+		"\n 请把鼠标点击在图像显示窗口，操作快捷键: \n"
+		"\t ESC - 结束图像显示 \n"
 		"\t l - 载入图像\n"
 		"\t w - 添加水印\n"
 		"\t s - 保存图像\n"
-		"\t t - 检测水印\n" << endl;
+		"\t t - 检测水印\n"
+		"\t 点击CMD窗口右上角X - 结束程序 \n"<< endl;
 }
 
 
@@ -120,10 +121,13 @@ Load://载入一幅图片
 
 			//主要逻辑步骤
 			const string winName = "Image";
-			cvNamedWindow( winName.c_str(), CV_WINDOW_AUTOSIZE );
+			/*cvNamedWindow( winName.c_str(), CV_WINDOW_AUTOSIZE );*/
+			cvNamedWindow( winName.c_str(), 0 );
 			gcapp.setImageAndWinName( image, winName );
 			gcapp.showImage();
 			int save_tag = 0;
+	        clock_t nTimeStart;      //计时开始
+		    clock_t nTimeStop;       //计时结束
 
 			for(;;)
 			{
@@ -139,10 +143,7 @@ Load://载入一幅图片
 					goto Load;
 
 				case 'w'://加水印
-
-					clock_t nTimeStart;      //计时开始
-					clock_t nTimeStop;       //计时结束
-					nTimeStart = clock();    //
+					nTimeStart = clock();  
 					cout << "图片添加水印信息..." << endl;
 					gcapp.watermarkImage();
 					cout << "图片添加水印信息结束" << endl;
@@ -164,6 +165,7 @@ Load://载入一幅图片
 					break;
 
 				case 't'://检测水印
+					nTimeStart = clock();  
 					cout << "检测图片水印是否篡改..." << endl;
 					int revised_tag = gcapp.testWatermark();
 					if(revised_tag)
@@ -176,6 +178,8 @@ Load://载入一幅图片
 						cout << "检测图片水印结束" << endl;
 						cout << "该图片 没有 被修改过！" << endl;
 					}
+					nTimeStop = clock();
+					cout <<"检测图片耗时："<<(double)(nTimeStop - nTimeStart)/CLOCKS_PER_SEC<<"秒"<< endl;
 					break;
 				}
 			}

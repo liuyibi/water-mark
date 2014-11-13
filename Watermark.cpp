@@ -62,28 +62,28 @@ void WatermarkApplication::setImageAndWinName( const Mat& _image, const string& 
 //给图像加水印
 void WatermarkApplication::watermarkImage()
 {
-	for(int i=0;i<Height;i++)
+	for(int i=0;i<Height;i+=2)
 	{
-		for(int j=0;j<Width;j++)
+		for(int j=0;j<Width;j+=2)
 		{	
-			if(isood(Tempres.at<Vec3b>( i,j )(0)))
-			{
-				//cout<<"该处被加入水印！"<<endl;
-				int fistvalue = Tempres.at<Vec3b>( i,j )(0);
-				Tempres.at<Vec3b>( i,j )(0) = fistvalue-1;
-			}
+			//if(isood(Tempres.at<Vec3b>( i,j )(0)))
+			//{
+			//	//cout<<"该处被加入水印！"<<endl;
+			//	int fistvalue = Tempres.at<Vec3b>( i,j )(0);
+			//	Tempres.at<Vec3b>( i,j )(0) = fistvalue-1;
+			//}
 			if(isood(Tempres.at<Vec3b>( i,j )(1)))
 			{
-				//cout<<"该处被加入水印！"<<endl;
+				/*cout<<"该处被加入水印！"<<endl;*/
 				int secondvalue = Tempres.at<Vec3b>( i,j )(1);
 				Tempres.at<Vec3b>( i,j )(1) = secondvalue-1;
 			}
-			if(isood(Tempres.at<Vec3b>( i,j )(2)))
-			{
-				//cout<<"该处被加入水印！"<<endl;
-				int thirdvalue = Tempres.at<Vec3b>( i,j )(2);
-				Tempres.at<Vec3b>( i,j )(2) = thirdvalue-1;
-			}
+			//if(isood(Tempres.at<Vec3b>( i,j )(2)))
+			//{
+			//	//cout<<"该处被加入水印！"<<endl;
+			//	int thirdvalue = Tempres.at<Vec3b>( i,j )(2);
+			//	Tempres.at<Vec3b>( i,j )(2) = thirdvalue-1;
+			//}
 		}
 	}
 }
@@ -107,12 +107,13 @@ int WatermarkApplication::saveImage()
 int WatermarkApplication::testWatermark()
 {
 	int revised_tag = 0;
-	for(int i=0;i<Height;i++)
+	for(int i=0;i<Height;i+=2)
 	{
-		for(int j=0;j<Width;j++)
+		for(int j=0;j<Width;j+=2)
 		{	
-			if(isood(Tempres.at<Vec3b>( i,j )(0))||isood(Tempres.at<Vec3b>( i,j )(1))||
-				isood(Tempres.at<Vec3b>( i,j )(2)))
+			//if(isood(Tempres.at<Vec3b>( i,j )(0))||isood(Tempres.at<Vec3b>( i,j )(1))||
+			//	isood(Tempres.at<Vec3b>( i,j )(2)))
+			 if(isood(Tempres.at<Vec3b>( i,j )(1)))
 			{
 				//cout<<isood(Tempres.at<Vec3b>( i,j )(0))<<endl;
 				//cout<<"该图像内容有改动，如图红色区域！"<<endl;
