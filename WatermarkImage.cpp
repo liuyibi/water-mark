@@ -126,8 +126,6 @@ Load://载入一幅图片
 			gcapp.setImageAndWinName( image, winName );
 			gcapp.showImage();
 			int save_tag = 0;
-	        clock_t nTimeStart;      //计时开始
-		    clock_t nTimeStop;       //计时结束
 
 			for(;;)
 			{
@@ -143,7 +141,10 @@ Load://载入一幅图片
 					goto Load;
 
 				case 'w'://加水印
-					nTimeStart = clock();  
+
+					clock_t nTimeStart;      //计时开始
+					clock_t nTimeStop;       //计时结束
+					nTimeStart = clock();    //
 					cout << "图片添加水印信息..." << endl;
 					gcapp.watermarkImage();
 					cout << "图片添加水印信息结束" << endl;
@@ -165,21 +166,18 @@ Load://载入一幅图片
 					break;
 
 				case 't'://检测水印
-					nTimeStart = clock();  
 					cout << "检测图片水印是否篡改..." << endl;
 					int revised_tag = gcapp.testWatermark();
 					if(revised_tag)
 					{
 						cout << "检测图片水印结束" << endl;
-						cout << "该图片 有 被修改过！" << endl;
+						cout << "该图片 有 被修改过，图中红色亮块位置！" << endl;
 					}
 					else
 					{
 						cout << "检测图片水印结束" << endl;
 						cout << "该图片 没有 被修改过！" << endl;
 					}
-					nTimeStop = clock();
-					cout <<"检测图片耗时："<<(double)(nTimeStop - nTimeStart)/CLOCKS_PER_SEC<<"秒"<< endl;
 					break;
 				}
 			}

@@ -54,36 +54,68 @@ void WatermarkApplication::setImageAndWinName( const Mat& _image, const string& 
 		return;
 	image = &_image;//图像指针image引用载入的图像，引用直接为原对象，不拷贝对象
 	image->copyTo( Tempres );
+	image->copyTo( TestShowres );
 	winName = &_winName;
 
+}
+
+
+//计算颜色信息关系
+double WatermarkApplication::compColorInfo( double R, double G, double B )
+{
+	R = R - isood( int(R) );
+	G = G - isood( int(G) );
+	B = B - isood( int(B) );
+
+	double Temp = abs( R + G - B );//颜色和差绝对值
+	double ColorInfos = pow( Temp,2 ); //求平方
+
+	return ColorInfos;
+}
+
+
+//计算位置信息
+double WatermarkApplication::compPositionInfo( double x, double y )
+{
+	double PositionInfo = abs( x - y );//位置纵横坐标绝对差
+
+	return PositionInfo;
 }
 
 
 //给图像加水印
 void WatermarkApplication::watermarkImage()
 {
-	for(int i=0;i<Height;i+=2)
+	for(int i=0;i<Height;i++)
 	{
-		for(int j=0;j<Width;j+=2)
+		for(int j=0;j<Width;j++)
 		{	
-			//if(isood(Tempres.at<Vec3b>( i,j )(0)))
-			//{
-			//	//cout<<"该处被加入水印！"<<endl;
-			//	int fistvalue = Tempres.at<Vec3b>( i,j )(0);
-			//	Tempres.at<Vec3b>( i,j )(0) = fistvalue-1;
-			//}
-			if(isood(Tempres.at<Vec3b>( i,j )(1)))
-			{
-				/*cout<<"该处被加入水印！"<<endl;*/
-				int secondvalue = Tempres.at<Vec3b>( i,j )(1);
-				Tempres.at<Vec3b>( i,j )(1) = secondvalue-1;
-			}
-			//if(isood(Tempres.at<Vec3b>( i,j )(2)))
-			//{
-			//	//cout<<"该处被加入水印！"<<endl;
-			//	int thirdvalue = Tempres.at<Vec3b>( i,j )(2);
-			//	Tempres.at<Vec3b>( i,j )(2) = thirdvalue-1;
-			//}
+			//获取颜色映射信息
+			double B = Tempres.at<Vec3b>( i,j )(0);
+			double G = Tempres.at<Vec3b>( i,j )(1);
+			double R = Tempres.at<Vec3b>( i,j )(2);
+			double ColorInfos = compColorInfo( R, G, B );
+
+			//获取坐标映射信息
+			double PositionInfo = compPositionInfo( double(i), double(j) );
+			double HashCode = ColorInfos + PositionInfo;//与各通道最后一位做异或运算
+
+			//最后一位做异或运算,得到的值赋予最后一位
+			//B通道
+			int XOR_Btag = isood( int(HashCode) );
+			B = B - isood( int(B) ) + double(XOR_Btag);
+			Tempres.at<Vec3b>( i,j )(0) = int(B);
+
+			//G通道
+			int XOR_Gtag = isood( int(HashCode) );
+			G = G - isood( int(G) ) + double(XOR_Gtag);
+			Tempres.at<Vec3b>( i,j )(1) = int(G);
+
+			//R通道
+			int XOR_Rtag = isood( int(HashCode) );
+			R = R - isood( int(R) ) + double(XOR_Rtag);
+			Tempres.at<Vec3b>( i,j )(2) = int(R);
+
 		}
 	}
 }
@@ -107,25 +139,58 @@ int WatermarkApplication::saveImage()
 int WatermarkApplication::testWatermark()
 {
 	int revised_tag = 0;
-	for(int i=0;i<Height;i+=2)
-	{
-		for(int j=0;j<Width;j+=2)
-		{	
-			//if(isood(Tempres.at<Vec3b>( i,j )(0))||isood(Tempres.at<Vec3b>( i,j )(1))||
-			//	isood(Tempres.at<Vec3b>( i,j )(2)))
-			 if(isood(Tempres.at<Vec3b>( i,j )(1)))
-			{
-				//cout<<isood(Tempres.at<Vec3b>( i,j )(0))<<endl;
-				//cout<<"该图像内容有改动，如图红色区域！"<<endl;
-				//cout<<i<<" "<<j<<endl;
-				Tempres.at<Vec3b>( i,j )(0) = 0;
-				Tempres.at<Vec3b>( i,j )(1) = 0;
-				Tempres.at<Vec3b>( i,j )(2) = 255;
 
+	for(int i=0;i<Height;i++)
+	{
+		for(int j=0;j<Width;j++)
+		{	
+			//获取颜色映射信息
+			double B = Tempres.at<Vec3b>( i,j )(0);
+			double G = Tempres.at<Vec3b>( i,j )(1);
+			double R = Tempres.at<Vec3b>( i,j )(2);
+			double ColorInfos = compColorInfo( R, G, B );
+
+			//获取坐标映射信息
+			double PositionInfo = compPositionInfo( double(i), double(j) );
+			double HashCode = ColorInfos + PositionInfo;//与各通道最后一位做异或运算
+
+			//最后一位做异或运算,检测是否有变化
+			//B通道
+			int XOR_Btag = ( isood( int(HashCode) ) ^ isood( int(B) ) );
+			//cout << XOR_Btag << endl;
+
+			//G通道
+			int XOR_Gtag = ( isood( int(HashCode) ) ^ isood( int(G) ) );
+
+
+			//R通道
+			int XOR_Rtag = ( isood( int(HashCode) ) ^ isood( int(R) ) );
+
+			//如果有变化，异或为1；没有变化，异或为0。
+			if( XOR_Btag || XOR_Gtag || XOR_Rtag )
+			{
+				//判断边界
+				if( 0<i && i< Height-1 && 0<j && j< Width-1 )
+				{
+					//检测到的目标点邻域着红色，并且8邻域都标出，使得明显
+					for( int local_i=i-1; local_i<i+2; local_i++ )
+					{
+						for( int local_j=j-1; local_j<j+2; local_j++ )
+						{
+							TestShowres.at<Vec3b>( local_i,local_j )(0) = 0;
+							TestShowres.at<Vec3b>( local_i,local_j )(1) = 0;
+							TestShowres.at<Vec3b>( local_i,local_j )(2) = 255;
+						}
+					}
+				}
 				revised_tag = 1;
 			}
+
 		}
 	}
+
+	Tempres = TestShowres;
+
 	//显示分割后的图像
 	imshow( *winName, Tempres );//显示图像 *winName：显示窗口名标签; Tempres:要显示的对象
 
