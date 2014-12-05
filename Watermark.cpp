@@ -27,7 +27,7 @@ using namespace cv;
 int isood(int n)//判断奇数或者偶数
 {
 	//实验验证正两种都可以，时间差不多，和图片内容有关
-	return n%2;//求余方法
+	return abs(n%2);//求余方法
 
 	/*//位与运算
 	unsigned char b=1;
@@ -74,12 +74,27 @@ double WatermarkApplication::compColorInfo( double R, double G, double B )
 }
 
 
+//计算四舍五入
+double RoundEx(const double& dInput)
+{
+	double dIn = dInput;
+	double dOut;
+	dOut = double(int(dIn + 0.5));
+	return dOut;
+
+}
+
+
 //计算位置信息
 double WatermarkApplication::compPositionInfo( double x, double y )
 {
-	double PositionInfo = abs( x - y );//位置纵横坐标绝对差
+	//double PositionInfo = abs( x - y );//位置纵横坐标绝对差,这个不行，线性平移不能克服原图复制粘贴；
+	//简单的平移和平方都会有很大概率出现某个方向的奇偶规律
 
-	return PositionInfo;
+	//注意：位置信息函数设计准则：让坐标值通过函数后，位置信息坐标系没有任何方向的奇偶规律
+	double PositionInfo =  sqrt( 1000 + (x-y) + pow( pow(x-y,2) + 53 ,2 ) + pow( (x-y + 7),2 ) + pow(( x - y),3 ) + pow( x+13 ,2 ) + pow( y+29,3 ) ) ;
+
+	return RoundEx(PositionInfo);
 }
 
 
@@ -95,9 +110,10 @@ void WatermarkApplication::watermarkImage()
 			double G = Tempres.at<Vec3b>( i,j )(1);
 			double R = Tempres.at<Vec3b>( i,j )(2);
 			double ColorInfos = compColorInfo( R, G, B );
-
 			//获取坐标映射信息
 			double PositionInfo = compPositionInfo( double(i), double(j) );
+
+
 			double HashCode = ColorInfos + PositionInfo;//与各通道最后一位做异或运算
 
 			//最后一位做异或运算,得到的值赋予最后一位
